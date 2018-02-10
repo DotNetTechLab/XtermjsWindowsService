@@ -1,0 +1,23 @@
+﻿@model HomePageViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<form method="post">
+    <label for="pin">PIN:</label><input id="pin" name="pin" type="password" value="@Model.Pin" />
+    <input type="hidden" name="operation" id="operation" />
+    <input type="submit" value="Submit" /><br /><br />
+
+    @if (Model.Authorized)
+    {
+        if (!string.IsNullOrEmpty(Model.RemoteConsoleUrl))
+        {
+            <a href="@Model.RemoteConsoleUrl" target="_blank">Access Console</a><br />
+        }
+
+        <input type="submit" onclick="document.getElementById('operation').innerText = 'start'; return true;" value="Start" /><br />
+        <input type="submit" onclick="document.getElementById('operation').innerText = 'stop'; return true;" value="Stop" /><br />
+        <label>Message:</label><br />
+        <textarea rows="10" cols="50">@Model.Output</textarea>
+    }
+</form>
