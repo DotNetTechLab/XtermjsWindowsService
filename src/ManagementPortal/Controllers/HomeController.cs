@@ -30,6 +30,12 @@ namespace ManagementPortal.Controllers
             };
 
             model.Authorized = Authorize(model.Pin);
+            if (!model.Authorized)
+            {
+                model.RemoteConsoleUrl = string.Empty;
+                model.Output = string.Empty;
+                return View(model);
+            }
 
             switch(operation)
             {
@@ -40,8 +46,15 @@ namespace ManagementPortal.Controllers
                     }
                     else
                     {
-                        (var result, var output) = _remoteConsole.Start();
-                        model.Output = output;
+                        try
+                        {
+                            (var result, var output) = _remoteConsole.Start();
+                            model.Output = output;
+                        }
+                        catch(Exception ex)
+                        {
+                            model.Output = "Failed to start RemoteConsole. Exception: " + ex.ToString();
+                        }
                     }
                     break;
                 case "stop":
@@ -51,13 +64,21 @@ namespace ManagementPortal.Controllers
                     }
                     else
                     {
-                        (var result, var output) = _remoteConsole.Stop();
-                        model.Output = output;
+                        try
+                        {
+                            (var result, var output) = _remoteConsole.Stop();
+                            model.Output = output;
+                        }
+                        catch(Exception ex)
+                        {
+                            model.Output = "Failed to stop RemoteConsole. Exception: " + ex.ToString();
+                        }
                     }
                     break;
             }
 
             model.RemoteConsoleUrl = _remoteConsole.IsRunning ? _remoteConsole.Url : string.Empty;
+            model.Output = model.Output ?? string.Empty;
 
             return View(model);
         }

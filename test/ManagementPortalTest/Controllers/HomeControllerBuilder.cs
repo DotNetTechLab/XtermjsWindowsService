@@ -8,10 +8,10 @@ namespace ManagementPortalTest.Controllers
 {
     public class HomeControllerBuilder
     {
-        private class RemoteConsoleManagerMock : IRemoteConsoleManager
+        public class RemoteConsoleManagerMock : IRemoteConsoleManager
         {
-            public Func<(bool, string)> StartDelegate { get; set; } = () => (true, "started");
-            public Func<(bool, string)> StopDelegate { get; set; } = () => (true, "stopped");
+            public Func<RemoteConsoleManagerMock, (bool, string)> StartDelegate { get; set; } = (_) => (true, "started");
+            public Func<RemoteConsoleManagerMock, (bool, string)> StopDelegate { get; set; } = (_) => (true, "stopped");
 
             public string Url { get; set; } = string.Empty;
 
@@ -19,16 +19,17 @@ namespace ManagementPortalTest.Controllers
 
             public (bool result, string output) Start()
             {
-                return StartDelegate();
+                return StartDelegate(this);
             }
 
             public (bool result, string output) Stop()
             {
-                return StopDelegate();
+                return StopDelegate(this);
             }
         }
 
         private readonly RemoteConsoleManagerMock _remoteConsole = new RemoteConsoleManagerMock();
+        public static string CorrectPin => "blablabla";
 
         public HomeControllerBuilder SetRemoteConsoleUrl(string url)
         {
@@ -42,13 +43,13 @@ namespace ManagementPortalTest.Controllers
             return this;
         }
 
-        public HomeControllerBuilder SetRemoteConsoleStartMethod(Func<(bool, string)> startMethod)
+        public HomeControllerBuilder SetRemoteConsoleStartMethod(Func<RemoteConsoleManagerMock, (bool, string)> startMethod)
         {
             _remoteConsole.StartDelegate = startMethod;
             return this;
         }
 
-        public HomeControllerBuilder SetRemoteConsoleStopMethod(Func<(bool, string)> stopMethod)
+        public HomeControllerBuilder SetRemoteConsoleStopMethod(Func<RemoteConsoleManagerMock, (bool, string)> stopMethod)
         {
             _remoteConsole.StopDelegate = stopMethod;
             return this;
