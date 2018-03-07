@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ManagementPortal.Models;
 using ManagementPortal.Services;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ManagementPortal.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly AuthorizationSettings _authorizationSettings;
         private readonly IRemoteConsoleManager _remoteConsole;
 
-        public HomeController(IRemoteConsoleManager remoteConsole)
+        public HomeController(AuthorizationSettings authorizationSettings, IRemoteConsoleManager remoteConsole)
         {
+            _authorizationSettings = authorizationSettings;
             _remoteConsole = remoteConsole;
         }
 
@@ -90,7 +90,13 @@ namespace ManagementPortal.Controllers
 
         private bool Authorize(string pin)
         {
-            return pin == "blablabla";
+            const string salt = "f0rtunE";
+            using (var md5 = MD5.Create())
+            {
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(salt + pin + salt));
+                var s = new Guid(hash).ToString("N");
+                return _authorizationSettings.PinHash.Equals(s, StringComparison.InvariantCultureIgnoreCase);
+            }
         }
     }
 }

@@ -69,7 +69,8 @@ namespace ManagementPortal
                         {
                             logger.Enrich.FromLogContext()
                                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                                .WriteTo.File(Path.Combine(directoryPath, "log.txt"), flushToDiskInterval: TimeSpan.FromSeconds(1));
+                                .WriteTo.File(Path.Combine(directoryPath, "log.txt"), flushToDiskInterval: TimeSpan.FromSeconds(1))
+                                .WriteTo.Console();
                         })
                         .UseContentRoot(directoryPath)
                         .Build();

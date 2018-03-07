@@ -15,8 +15,8 @@
             <a href="@Model.RemoteConsoleUrl" target="_blank">Access Console</a><br />
         }
 
-        <input type="submit" onclick="document.getElementById('operation').innerText = 'start'; return true;" value="Start" /><br />
-        <input type="submit" onclick="document.getElementById('operation').innerText = 'stop'; return true;" value="Stop" /><br />
+        <input type="submit" onclick="document.getElementById('operation').value = 'start'; return true;" value="Start" /><br />
+        <input type="submit" onclick="document.getElementById('operation').value = 'stop'; return true;" value="Stop" /><br />
         <label>Message:</label><br />
         <textarea rows="10" cols="50">@Model.Output</textarea>
     }
