@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using DasMulli.Win32.ServiceUtils;
 using Serilog;
 using Serilog.Events;
+using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 namespace ManagementPortal
 {
@@ -54,8 +56,9 @@ namespace ManagementPortal
 
             public void Start(string[] startupArguments, ServiceStoppedCallback serviceStoppedCallback)
             {
-                var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                var exePath = Assembly.GetExecutingAssembly().Location;
                 var directoryPath = Path.GetDirectoryName(exePath);
+
                 var log = new LoggerConfiguration()
                     .Enrich.FromLogContext()
                     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -65,6 +68,12 @@ namespace ManagementPortal
                 {
                     _host = WebHost.CreateDefaultBuilder(startupArguments)
                         .UseStartup<Startup>()
+                        .ConfigureAppConfiguration((context, logging) =>
+                        {
+                            // When it is started as a service. The current folder is "%windir%\system"
+                            logging.AddJsonFile(Path.Combine(directoryPath, "appsettings.json"), true, false);
+                            logging.AddJsonFile(Path.Combine(directoryPath, $"appsettings.{context.HostingEnvironment.EnvironmentName}.json"), true, false);
+                        })
                         .UseSerilog((context, logger) =>
                         {
                             logger.Enrich.FromLogContext()
@@ -72,7 +81,7 @@ namespace ManagementPortal
                                 .WriteTo.File(Path.Combine(directoryPath, "log.txt"), flushToDiskInterval: TimeSpan.FromSeconds(1))
                                 .WriteTo.Console();
                         })
-                        .UseContentRoot(directoryPath)
+                        .UseUrls("http://*:15666")
                         .Build();
                     _host.RunAsync();
                 }

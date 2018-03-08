@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -21,15 +22,17 @@ namespace ManagementPortal.Services
         private readonly ILogger<RemoteConsoleManager> _logger;
         private readonly IFirewallAgent _firewallAgent;
         private readonly IPlatform _platform;
+        private readonly string _xtermjsBinaryDirectory;
 
         public string Url { get; private set; }
         public bool IsRunning { get; private set; }
 
-        public RemoteConsoleManager(ILogger<RemoteConsoleManager> logger, IFirewallAgent firewallAgent, IPlatform platform)
+        public RemoteConsoleManager(ILogger<RemoteConsoleManager> logger, IConfiguration configuration, IFirewallAgent firewallAgent, IPlatform platform)
         {
             _logger = logger;
             _firewallAgent = firewallAgent;
             _platform = platform;
+            _xtermjsBinaryDirectory = configuration.GetValue<string>("XtermjsBinaryDirectory");
         }
 
         public (bool result, string output) Start()
@@ -42,7 +45,7 @@ namespace ManagementPortal.Services
                 false,
                 "run.bat",
                 port.ToString(),
-                "C:\\GitHubRepos\\DotNetTechLab\\XtermjsWindowsService\\Publish\\xtermjs-binary"
+                _xtermjsBinaryDirectory
                 );
 
             Url = $"http://localhost:{port}";
